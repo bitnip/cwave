@@ -42,8 +42,3 @@ Simple parser for WAVE audio files.
 ## Known Issues
 - Unit tests do not cover all error cases.
 - Unit tests do not cover alloc failures.
-
----
-
-## Authors
-- Paige Xura
