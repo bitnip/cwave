@@ -1,35 +1,12 @@
-#include "wave.h"
+#include "wave_parser.h"
 #include "cutil/src/assertion.h"
 
-unsigned int parseRIFFChunk(struct WAVE* wave, char** buffer, unsigned int *size);
-unsigned int parseWAVEFormatChunk(struct WAVE* wave, char **buffer, unsigned int *size);
-unsigned int parseWAVEDataChunk(struct WAVE* wave, char **buffer, unsigned int *size);
-
-void testRIFFChunk() {
-    unsigned char input[16] = {
+void testParseValidMD2() {
+    unsigned char input[] = {
         0x52, 0x49, 0x46, 0x46, // `RIFF`
-        0x04, 0x00, 0x00, 0x00, // Size of File - 8
-        0x57, 0x41, 0x56, 0x45  // `WAVE`
-    };
-    char* buffer = (char*)input;
-    struct WAVE wave;
-    unsigned int size = 12;
-    unsigned int offset = parseRIFFChunk(&wave, &buffer, &size);
-    assertIntegersEqual(offset, 12);
-    assertIntegersEqual(size, 0);
-    assertIntegersEqual(wave.riffChunk->header.id[0], 'R');
-    assertIntegersEqual(wave.riffChunk->header.id[1], 'I');
-    assertIntegersEqual(wave.riffChunk->header.id[2], 'F');
-    assertIntegersEqual(wave.riffChunk->header.id[3], 'F');
-    assertIntegersEqual(wave.riffChunk->header.size, 4);
-    assertIntegersEqual(wave.riffChunk->format[0], 'W');
-    assertIntegersEqual(wave.riffChunk->format[1], 'A');
-    assertIntegersEqual(wave.riffChunk->format[2], 'V');
-    assertIntegersEqual(wave.riffChunk->format[3], 'E');
-}
+        0x28, 0x00, 0x00, 0x00, // Size of File - 8
+        0x57, 0x41, 0x56, 0x45, // `WAVE`
 
-void testWAVEFormatChunk() {
-    unsigned char input[24] = {
         0x66, 0x6d, 0x74, 0x20, // `fmt `
         0x10, 0x00, 0x00, 0x00, // Chunk size - 8
         0x01, 0x00, // Format: 1
@@ -37,14 +14,28 @@ void testWAVEFormatChunk() {
         0x80, 0xbb, 0x00, 0x00, // Sample rate
         0x80, 0xbb, 0x00, 0x00, // Byte rate
         0x01, 0x00, // Block align
-        0x08, 0x00  // Bit depth
+        0x08, 0x00, // Bit depth
+
+        0x64, 0x61, 0x74, 0x61, // `data`
+        0x04, 0x00, 0x00, 0x00, // Chunk size - 8
+        0x57, 0x41, 0x56, 0x45  // Audo data
     };
-    char* buffer = (char*)input;
+
     struct WAVE wave;
-    unsigned int size = 24;
-    unsigned int offset = parseWAVEFormatChunk(&wave, &buffer, &size);
-    assertIntegersEqual(offset, 24);
-    assertIntegersEqual(size, 0);
+    unsigned int inputSize = sizeof(input)/sizeof(input[0]);
+    unsigned int offset = parseWAVE(&wave, (char*)input, inputSize);
+    assertIntegersEqual(offset, inputSize);
+
+    assertIntegersEqual(wave.riffChunk->header.id[0], 'R');
+    assertIntegersEqual(wave.riffChunk->header.id[1], 'I');
+    assertIntegersEqual(wave.riffChunk->header.id[2], 'F');
+    assertIntegersEqual(wave.riffChunk->header.id[3], 'F');
+    assertIntegersEqual(wave.riffChunk->header.size, 40);
+    assertIntegersEqual(wave.riffChunk->format[0], 'W');
+    assertIntegersEqual(wave.riffChunk->format[1], 'A');
+    assertIntegersEqual(wave.riffChunk->format[2], 'V');
+    assertIntegersEqual(wave.riffChunk->format[3], 'E');
+
     assertIntegersEqual(wave.waveFormat->header.id[0], 'f');
     assertIntegersEqual(wave.waveFormat->header.id[1], 'm');
     assertIntegersEqual(wave.waveFormat->header.id[2], 't');
@@ -56,20 +47,7 @@ void testWAVEFormatChunk() {
     assertIntegersEqual(wave.waveFormat->byteRate, 48000);
     assertIntegersEqual(wave.waveFormat->blockAlign, 1);
     assertIntegersEqual(wave.waveFormat->bitDepth, 8);
-}
 
-void testWAVEDataChunk() {
-    unsigned char input[12] = {
-        0x64, 0x61, 0x74, 0x61, // `data`
-        0x04, 0x00, 0x00, 0x00, // Chunk size - 8
-        0x57, 0x41, 0x56, 0x45  // Audo data
-    };
-    char* buffer = (char*)input;
-    struct WAVE wave;
-    unsigned int size = 12;
-    unsigned int offset = parseWAVEDataChunk(&wave, &buffer, &size);
-    assertIntegersEqual(offset, 12);
-    assertIntegersEqual(size, 0);
     assertIntegersEqual(wave.waveData->header.id[0], 'd');
     assertIntegersEqual(wave.waveData->header.id[1], 'a');
     assertIntegersEqual(wave.waveData->header.id[2], 't');
@@ -82,7 +60,5 @@ void testWAVEDataChunk() {
 }
 
 void test() {
-    testRIFFChunk();
-    testWAVEFormatChunk();
-    testWAVEDataChunk();
+    testParseValidMD2();
 }

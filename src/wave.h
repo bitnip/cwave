@@ -32,7 +32,7 @@ struct WAVE {
     struct RIFFChunk* riffChunk;
     struct WAVEFormatChunk* waveFormat;
     struct WAVEDataChunk* waveData;
-    unsigned char *data;
+    unsigned char* data;
 };
 
 #ifdef __cplusplus
