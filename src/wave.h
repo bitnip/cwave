@@ -29,10 +29,10 @@ struct WAVEDataChunk {
 };
 
 struct WAVE {
-    struct RIFFChunk* riffChunk;
-    struct WAVEFormatChunk* waveFormat;
-    struct WAVEDataChunk* waveData;
-    unsigned char* data;
+    struct RIFFChunk *riffChunk;
+    struct WAVEFormatChunk *waveFormat;
+    struct WAVEDataChunk *waveData;
+    unsigned char *data;
 };
 
 #ifdef __cplusplus

@@ -1,8 +1,8 @@
 #include "wave_parser.h"
 
-inline unsigned int parseRIFFChunk(struct WAVE* wave, char* buffer, unsigned int size) {
+inline unsigned int parseRIFFChunk(struct WAVE *wave, char *buffer, unsigned int size) {
     // Verify fixed portion of chunk is within buffer.
-    struct RIFFChunk* chunk = (struct RIFFChunk*)buffer;
+    struct RIFFChunk *chunk = (struct RIFFChunk*)buffer;
     if (sizeof(struct RIFFChunk) > size ||
         chunk->header.id[0] != 'R' ||
         chunk->header.id[1] != 'I' ||
@@ -25,9 +25,9 @@ inline unsigned int parseRIFFChunk(struct WAVE* wave, char* buffer, unsigned int
     return sizeof(struct RIFFChunk);
 }
 
-inline unsigned int parseWAVEFormatChunk(struct WAVE* wave, char* buffer, unsigned int size) {
+inline unsigned int parseWAVEFormatChunk(struct WAVE *wave, char *buffer, unsigned int size) {
     // Verify fixed portion of chunk is within buffer.
-    struct WAVEFormatChunk* chunk = (struct WAVEFormatChunk*)buffer;
+    struct WAVEFormatChunk *chunk = (struct WAVEFormatChunk*)buffer;
     if (sizeof(struct WAVEFormatChunk) > size ||
         chunk->header.id[0] != 'f' ||
         chunk->header.id[1] != 'm' ||
@@ -44,9 +44,9 @@ inline unsigned int parseWAVEFormatChunk(struct WAVE* wave, char* buffer, unsign
     return waveFormatSize;
 }
 
-inline unsigned int parseWAVEDataChunk(struct WAVE* wave, char* buffer, unsigned int size) {
+inline unsigned int parseWAVEDataChunk(struct WAVE *wave, char *buffer, unsigned int size) {
     // Verify fixed portion of chunk is within buffer.
-    struct WAVEDataChunk* chunk = (struct WAVEDataChunk*)buffer;
+    struct WAVEDataChunk *chunk = (struct WAVEDataChunk*)buffer;
     if (sizeof(struct WAVEDataChunk) > size ||
         chunk->header.id[0] != 'd' ||
         chunk->header.id[1] != 'a' ||
@@ -65,7 +65,7 @@ inline unsigned int parseWAVEDataChunk(struct WAVE* wave, char* buffer, unsigned
     return waveDataSize;
 }
 
-unsigned int parseWAVE(struct WAVE* wave, char* buffer, unsigned int size) {
+unsigned int parseWAVE(struct WAVE *wave, char *buffer, unsigned int size) {
     int offset = 0;
     if ((offset += parseRIFFChunk(wave, buffer, size)) &&
         (offset += parseWAVEFormatChunk(wave, buffer+offset, size-offset)) &&
